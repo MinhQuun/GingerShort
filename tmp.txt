@@ -1,1 +1,3 @@
 he he he he 
+
+deploy.bat "initial deploy"
