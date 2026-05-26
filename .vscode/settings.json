@@ -1,3 +1,4 @@
 {
-    "liveServer.settings.donotInjectJSCode": ["**/components/**"]
+  "liveServer.settings.donotInjectJSCode": ["**/components/**"],
+  "liveServer.settings.port": 5501
 }
