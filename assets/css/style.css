@@ -338,20 +338,32 @@ header {
   background: var(--surface);
   border-bottom: 1px solid var(--border-faint);
   backdrop-filter: blur(16px);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-header.is-scrolled {
+  background: var(--surface-strong);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-soft);
 }
 
 .nav-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 18px;
   padding: 16px 0;
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-header.is-scrolled .nav-inner {
+  padding: 10px 0;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
 }
 
 .brand-mark {
@@ -362,10 +374,16 @@ header {
 }
 
 .brand-logo {
-  height: 44px;
+  height: clamp(48px, 5vw, 66px);
+  max-width: min(240px, 44vw);
   width: auto;
   border-radius: 0;
   display: block;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-header.is-scrolled .brand-logo {
+  height: clamp(40px, 4vw, 50px);
 }
 
 .brand-info {
@@ -387,6 +405,7 @@ header {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  margin-left: auto;
 }
 
 .theme-toggle {
@@ -402,6 +421,13 @@ header {
   padding: 0 6px;
   box-shadow: var(--shadow-soft);
   cursor: pointer;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
 }
 
 /* Thumb tròn trượt */
@@ -465,6 +491,12 @@ html[data-theme="light"] .theme-icon--moon {
   padding: 10px;
   border-radius: 12px;
   color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.nav-toggle:hover {
+  border-color: var(--accent);
 }
 
 .nav-toggle span {
@@ -472,7 +504,19 @@ html[data-theme="light"] .theme-icon--moon {
   height: 2px;
   background: var(--text);
   border-radius: 999px;
-  transition: 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 .nav-menu {
@@ -480,23 +524,76 @@ html[data-theme="light"] .theme-icon--moon {
   top: 100%;
   left: 0;
   right: 0;
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 16px;
   background: var(--surface-strong);
   border-bottom: 1px solid var(--border-accent);
   backdrop-filter: blur(16px);
-}
-
-.nav-menu a:not(.btn) {
-  padding: 6px 4px;
-  color: var(--text);
-  font-weight: 500;
+  
+  /* Transition animation for mobile overlay */
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-menu.is-open {
-  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.nav-menu a:not(.btn) {
+  padding: 8px 12px;
+  color: var(--text);
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease, padding 0.3s ease, background-color 0.3s ease;
+  border-radius: 8px;
+}
+
+.nav-menu a:not(.btn)::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+.nav-menu a:not(.btn):hover {
+  color: var(--accent);
+}
+
+.nav-menu a:not(.btn):hover::after {
+  width: 24px;
+}
+
+/* Active link style */
+.nav-menu a:not(.btn).active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-menu a:not(.btn).active::after {
+  width: 24px;
+}
+
+@media (max-width: 899px) {
+  .nav-menu a:not(.btn)::after {
+    display: none;
+  }
+  
+  .nav-menu a:not(.btn):hover,
+  .nav-menu a:not(.btn).active {
+    background: var(--accent-soft);
+    padding-left: 18px;
+  }
 }
 
 body.nav-open {
@@ -838,15 +935,18 @@ body.nav-open {
 }
 
 .social-btn {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
   border: 1px solid var(--border-accent-strong);
   background: var(--glass);
+  backdrop-filter: blur(12px);
   color: var(--text);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 13px;
+  overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-soft);
   cursor: pointer;
@@ -854,30 +954,84 @@ body.nav-open {
 
 .social-btn:hover {
   border-color: var(--accent);
-  color: var(--ink);
-  background: var(--accent);
-  transform: translateY(-3px) scale(1.05);
+  background: var(--accent-soft);
+  transform: translateY(-3px) scale(1.08);
   box-shadow: 0 8px 20px var(--accent-35);
 }
 
 .social-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   transition: transform 0.3s ease;
 }
 
-.social-btn:hover svg {
-  transform: scale(1.1);
+/* Icon dạng <img> dùng SVG của user — giới hạn kích thước, không fill toàn button */
+.social-icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  transition: transform 0.3s ease;
+}
+
+/* TikTok dùng switch (dark/light) */
+.social-icon-switch {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  position: relative;
+  display: block;
+}
+
+.social-icon-switch img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  transition: transform 0.3s ease;
+}
+
+.social-icon-switch__light {
+  display: none !important;
+}
+
+html[data-theme="light"] .social-icon-switch__dark {
+  display: none !important;
+}
+
+html[data-theme="light"] .social-icon-switch__light {
+  display: block !important;
+}
+
+.social-btn:hover svg,
+.social-btn:hover .social-icon,
+.social-btn:hover .social-icon-switch img {
+  transform: scale(1.12);
 }
 
 .social-btn--small {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  padding: 10px;
 }
 
 .social-btn--small svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+}
+
+.social-btn--small .social-icon,
+.social-btn--small .social-icon-switch {
+  width: 20px;
+  height: 20px;
 }
 
 .footer-socials {
@@ -986,6 +1140,9 @@ body.nav-open {
     background: transparent;
     border: none;
     padding: 0;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
   }
 
   body.nav-open {

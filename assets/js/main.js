@@ -80,6 +80,21 @@ const initNav = () => {
       closeMenu();
     }
   });
+
+  // Tự động kích hoạt class active cho trang hiện tại
+  const currentPath = window.location.pathname;
+  let pageName = currentPath.split("/").pop() || "index.html";
+  if (pageName === "") pageName = "index.html";
+
+  const navLinks = menu.querySelectorAll("a:not(.btn)");
+  navLinks.forEach((link) => {
+    const href = link.getAttribute("href");
+    if (href === pageName) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
 };
 
 const initThemeToggle = () => {
@@ -200,6 +215,22 @@ const initScrollReveal = () => {
   items.forEach((item) => observer.observe(item));
 };
 
+const initScrollHeader = () => {
+  const header = document.querySelector(".site-header");
+  if (!header) return;
+
+  const handleScroll = () => {
+    if (window.scrollY > 20) {
+      header.classList.add("is-scrolled");
+    } else {
+      header.classList.remove("is-scrolled");
+    }
+  };
+
+  handleScroll();
+  window.addEventListener("scroll", handleScroll, { passive: true });
+};
+
 const init = async () => {
   // Lấy trạng thái từ localStorage ra khi khởi tạo trang (DOMContentLoaded)
   applyTheme(getInitialTheme());
@@ -210,6 +241,7 @@ const init = async () => {
   ]);
 
   initNav();
+  initScrollHeader();
   initThemeToggle();
   initHeroSlider();
   initCountdown();
